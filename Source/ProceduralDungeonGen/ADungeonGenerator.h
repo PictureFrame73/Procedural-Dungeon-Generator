@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Containers/Queue.h"
 #include "ADungeonGenerator.generated.h"
+
 
 
 USTRUCT()
@@ -34,11 +36,13 @@ protected:
 	
 	UPROPERTY()
 	TArray<FRoomCell> Grid;
-	UPROPERTY(EditAnywhere, Category = "Grid Size")
-	int32 Width{ 10 };
-	UPROPERTY(EditAnywhere, Category = "Grid Size")
-	int32 Height{ 10 };
+
+	TQueue<FIntPoint> Queue;
 	
+	UPROPERTY(EditAnywhere, Category = "Grid Size")
+	int32 Width{ 40 };
+	UPROPERTY(EditAnywhere, Category = "Grid Size")
+	int32 Height{ 40 };
 	
 	UFUNCTION(BlueprintCallable)
 	void GenerateDungeon();
@@ -47,12 +51,14 @@ private:
 	void InitializeGridLayout();
 	bool IsInsideGrid( int32 X, int32 Y ) const;
 	void GenerateCriticalPath();
-	void GenerateStartEndPoints( int32 Seed );
+	void GenerateStartEndPoints();
 	FIntPoint GetRandomPoint();
+	void PrintGrid() const;
 	
 	FRoomCell& GetCell( int32 X, int32 Y );
 	
 	FIntPoint StartPoint;
 	FIntPoint EndPoint;
+	FIntPoint CurrentRoomLocation;
 	FRandomStream RandomStream;
 };

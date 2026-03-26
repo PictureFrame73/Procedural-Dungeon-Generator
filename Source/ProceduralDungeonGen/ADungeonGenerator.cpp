@@ -53,7 +53,7 @@ FIntPoint AADungeonGenerator::GetRandomPoint()
 
 
 // Generates the START and END points in the grid
-void AADungeonGenerator::GenerateStartEndPoints( int32 Seed )
+void AADungeonGenerator::GenerateStartEndPoints()
 {
 	StartPoint = GetRandomPoint();
 	EndPoint = GetRandomPoint();
@@ -73,21 +73,84 @@ void AADungeonGenerator::GenerateStartEndPoints( int32 Seed )
 // Create a path straight from the START to the END
 void AADungeonGenerator::GenerateCriticalPath()
 {
-	FIntPoint GridLocation( Width, Height );
+	FIntPoint StartLocation{ StartPoint.X, StartPoint.Y };
+	FIntPoint EndLocation{ EndPoint.X, EndPoint.Y };
+	CurrentRoomLocation = StartLocation;
+
+	while ( CurrentRoomLocation != EndLocation )
+	{
+		if ( CurrentRoomLocation.X > EndLocation.X )
+		{
+			CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+		}
+		else if ( CurrentRoomLocation.X < EndLocation.X )
+		{
+			CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+		}
+		else if ( CurrentRoomLocation.Y > EndLocation.Y )
+		{
+			CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+		}
+		else if ( CurrentRoomLocation.Y < EndLocation.Y )
+		{
+			CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+		}
+		
+	}
 	
-	
-	
+}
+
+
+// Prints the grid
+void AADungeonGenerator::PrintGrid() const
+{
+	for (int32 Y = Height - 1; Y >= 0; Y--)
+	{
+		FString Row = "";
+
+		for (int32 X = 0; X < Width; X++)
+		{
+			const FRoomCell& Cell = Grid[X + Y * Width];
+
+			if (Cell.bIsStart)
+			{
+				Row += "S ";
+			}
+			else if (Cell.bIsEnd)
+			{
+				Row += "E ";
+			}
+			else if (Cell.bIsRoom)
+			{
+				Row += "X ";
+			}
+			else
+			{
+				Row += ". ";
+			}
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Row);
+	}
 }
 
 
 // Generates the Dungeon
 void AADungeonGenerator::GenerateDungeon()
 {
-	int32 RandomSeed{ FMath::RandRange(0, 100) };
-	RandomStream.Initialize(RandomSeed);
+	int32 RandomSeed{ FMath::RandRange(0, 10000) };
+	RandomStream.Initialize( RandomSeed );
 	
 	InitializeGridLayout();
-	GenerateStartEndPoints( RandomSeed );
+	GenerateStartEndPoints();
 	GenerateCriticalPath();
-	
+	PrintGrid();
 }
