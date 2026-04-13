@@ -153,4 +153,5 @@ void AADungeonGenerator::GenerateDungeon()
 	GenerateStartEndPoints();
 	GenerateCriticalPath();
 	PrintGrid();
+	OnDungeonGenerated();
 }

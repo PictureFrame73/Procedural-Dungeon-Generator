@@ -9,14 +9,18 @@
 
 
 
-USTRUCT()
+USTRUCT( BlueprintType )
 struct FRoomCell
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY( BlueprintReadOnly )
 	bool bIsRoom = false;
+	UPROPERTY( BlueprintReadOnly )
 	bool bIsStart = false;
+	UPROPERTY( BlueprintReadOnly )
 	bool bIsEnd = false;
+	UPROPERTY( BlueprintReadOnly )
 	bool bIsVisited = false;
 };
 
@@ -34,18 +38,30 @@ protected:
 	
 	int32 Seed{ 0 };
 	
-	UPROPERTY()
+	UPROPERTY( BlueprintReadOnly )
 	TArray<FRoomCell> Grid;
-
+	
 	TQueue<FIntPoint> Queue;
 	
-	UPROPERTY(EditAnywhere, Category = "Grid Size")
-	int32 Width{ 40 };
-	UPROPERTY(EditAnywhere, Category = "Grid Size")
-	int32 Height{ 40 };
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Size" )
+	int32 Width{ 10 };
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Size" )
+	int32 Height{ 10 };
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION( BlueprintCallable )
 	void GenerateDungeon();
+
+protected:
+	UPROPERTY( BlueprintReadOnly )
+	FIntPoint StartPoint;
+	UPROPERTY( BlueprintReadOnly )
+	FIntPoint EndPoint;
+	UPROPERTY( BlueprintReadOnly )
+	FIntPoint CurrentRoomLocation;
+	FRandomStream RandomStream;
+
+	UFUNCTION( BlueprintImplementableEvent )
+	void OnDungeonGenerated();
 	
 private:
 	void InitializeGridLayout();
@@ -54,11 +70,7 @@ private:
 	void GenerateStartEndPoints();
 	FIntPoint GetRandomPoint();
 	void PrintGrid() const;
-	
+
+	UFUNCTION( BlueprintCallable )
 	FRoomCell& GetCell( int32 X, int32 Y );
-	
-	FIntPoint StartPoint;
-	FIntPoint EndPoint;
-	FIntPoint CurrentRoomLocation;
-	FRandomStream RandomStream;
 };
