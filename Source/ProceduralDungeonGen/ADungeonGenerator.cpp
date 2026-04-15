@@ -70,7 +70,7 @@ void AADungeonGenerator::GenerateStartEndPoints()
 }
 
 
-// Create a path straight from the START to the END
+// Create a path from the START to the END
 void AADungeonGenerator::GenerateCriticalPath()
 {
 	FIntPoint StartLocation{ StartPoint.X, StartPoint.Y };
@@ -79,33 +79,71 @@ void AADungeonGenerator::GenerateCriticalPath()
 
 	while ( CurrentRoomLocation != EndLocation )
 	{
-		if ( CurrentRoomLocation.X > EndLocation.X )
+		switch ( FigureOutRoomGenerationDirection( CurrentRoomLocation, EndLocation ) )
 		{
-			CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
-		}
-		else if ( CurrentRoomLocation.X < EndLocation.X )
-		{
-			CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
-		}
-		else if ( CurrentRoomLocation.Y > EndLocation.Y )
-		{
-			CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
-		}
-		else if ( CurrentRoomLocation.Y < EndLocation.Y )
-		{
+		case 'N':
 			CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
 			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
 			Queue.Enqueue( CurrentRoomLocation );
+			
+			break;
+		case 'E':
+			CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+			
+			break;
+		case 'S':
+			CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+			
+			break;
+		case 'W':
+			CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
+			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+			Queue.Enqueue( CurrentRoomLocation );
+			
+			break;
+			
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("Generating Critical Path Failed"));
 		}
 		
 	}
 	
+}
+
+
+// Figures out the room generation direction
+char AADungeonGenerator::FigureOutRoomGenerationDirection( FIntPoint CurrentCell, FIntPoint EndLocation )
+{
+	TArray<char> PossibleMoves{};
+	
+	if ( CurrentCell.X > EndLocation.X )
+	{
+		PossibleMoves.Add( 'W' );
+	}
+	
+	if ( CurrentCell.X < EndLocation.X )
+	{
+		PossibleMoves.Add( 'E' );
+	}
+	
+	if ( CurrentCell.Y > EndLocation.Y )
+	{
+		PossibleMoves.Add( 'S' );
+	}
+	
+	if ( CurrentCell.Y < EndLocation.Y )
+	{
+		PossibleMoves.Add( 'N' );
+	}
+	
+	int32 MaxSize{ PossibleMoves.Num() };
+	char ChosenMove{ PossibleMoves[ RandomStream.RandRange(0, MaxSize - 1) ] };
+	
+	return ChosenMove;
 }
 
 

@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Containers/Queue.h"
+#include "Containers/List.h"
 #include "ADungeonGenerator.generated.h"
-
 
 
 USTRUCT( BlueprintType )
@@ -15,13 +15,13 @@ struct FRoomCell
 	GENERATED_BODY()
 
 	UPROPERTY( BlueprintReadOnly )
-	bool bIsRoom = false;
+	bool bIsRoom{ false };
 	UPROPERTY( BlueprintReadOnly )
-	bool bIsStart = false;
+	bool bIsStart{ false };
 	UPROPERTY( BlueprintReadOnly )
-	bool bIsEnd = false;
+	bool bIsEnd{ false };
 	UPROPERTY( BlueprintReadOnly )
-	bool bIsVisited = false;
+	bool bIsVisited{ false };
 };
 
 
@@ -43,15 +43,13 @@ protected:
 	
 	TQueue<FIntPoint> Queue;
 	
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Size" )
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
 	int32 Width{ 10 };
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Size" )
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
 	int32 Height{ 10 };
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
+	int32 BranchAmount{ 3 };
 	
-	UFUNCTION( BlueprintCallable )
-	void GenerateDungeon();
-
-protected:
 	UPROPERTY( BlueprintReadOnly )
 	FIntPoint StartPoint;
 	UPROPERTY( BlueprintReadOnly )
@@ -60,6 +58,8 @@ protected:
 	FIntPoint CurrentRoomLocation;
 	FRandomStream RandomStream;
 
+	UFUNCTION( BlueprintCallable )
+	void GenerateDungeon();
 	UFUNCTION( BlueprintImplementableEvent )
 	void OnDungeonGenerated();
 	
@@ -68,6 +68,8 @@ private:
 	bool IsInsideGrid( int32 X, int32 Y ) const;
 	void GenerateCriticalPath();
 	void GenerateStartEndPoints();
+	char FigureOutRoomGenerationDirection( FIntPoint CurrentCell, FIntPoint EndLocation );
+	void GeneratePathBranches();
 	FIntPoint GetRandomPoint();
 	void PrintGrid() const;
 
