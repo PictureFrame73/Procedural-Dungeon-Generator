@@ -79,35 +79,86 @@ void AADungeonGenerator::GenerateCriticalPath()
 
 	while ( CurrentRoomLocation != EndLocation )
 	{
-		switch ( FigureOutRoomGenerationDirection( CurrentRoomLocation, EndLocation ) )
+		if ( CriticalPathRandomnessRate < (RandomStream.RandRange(0, 100)) )
 		{
-		case 'N':
-			CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
+			switch ( FigureOutRoomGenerationDirection( CurrentRoomLocation, EndLocation ) )
+			{
+			case 'N':
+				CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
+				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+				Queue.Enqueue( CurrentRoomLocation );
 			
-			break;
-		case 'E':
-			CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
+				break;
+			case 'E':
+				CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
+				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+				Queue.Enqueue( CurrentRoomLocation );
 			
-			break;
-		case 'S':
-			CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
+				break;
+			case 'S':
+				CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
+				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+				Queue.Enqueue( CurrentRoomLocation );
 			
-			break;
-		case 'W':
-			CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
-			GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-			Queue.Enqueue( CurrentRoomLocation );
+				break;
+			case 'W':
+				CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
+				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+				Queue.Enqueue( CurrentRoomLocation );
 			
-			break;
+				break;
 			
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("Generating Critical Path Failed"));
+			default:
+				UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
+				
+			}
+			
+		}
+		else if ( CriticalPathRandomnessRate > (RandomStream.RandRange(0, 100)) )
+		{
+			TArray PossibleRandomMoves{ 'N', 'E', 'S', 'W' };
+			char ChosenDirection{ PossibleRandomMoves[ RandomStream.RandRange(0, 3) ] };
+			
+			if ( CurrentRoomLocation.X < Width - 1 && CurrentRoomLocation.Y < Height - 1 )
+			{
+				switch ( ChosenDirection )
+				{
+				case 'N':
+					CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
+					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+					Queue.Enqueue( CurrentRoomLocation );
+			
+					break;
+				case 'E':
+					CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
+					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+					Queue.Enqueue( CurrentRoomLocation );
+			
+					break;
+				case 'S':
+					CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
+					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+					Queue.Enqueue( CurrentRoomLocation );
+			
+					break;
+				case 'W':
+					CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
+					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
+					Queue.Enqueue( CurrentRoomLocation );
+			
+					break;
+			
+				default:
+					UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
+			
+				}
+				
+			}
+			
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
 		}
 		
 	}

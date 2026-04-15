@@ -48,6 +48,8 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
 	int32 Height{ 10 };
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
+	int32 CriticalPathRandomnessRate{ 20 };
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Grid Properties" )
 	int32 BranchAmount{ 3 };
 	
 	UPROPERTY( BlueprintReadOnly )
