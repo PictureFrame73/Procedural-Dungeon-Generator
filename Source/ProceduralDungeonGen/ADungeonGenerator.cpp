@@ -76,90 +76,60 @@ void AADungeonGenerator::GenerateCriticalPath()
 	FIntPoint StartLocation{ StartPoint.X, StartPoint.Y };
 	FIntPoint EndLocation{ EndPoint.X, EndPoint.Y };
 	CurrentRoomLocation = StartLocation;
+	char Direction;
 
 	while ( CurrentRoomLocation != EndLocation )
 	{
 		if ( CriticalPathRandomnessRate < (RandomStream.RandRange(0, 100)) )
 		{
-			switch ( FigureOutRoomGenerationDirection( CurrentRoomLocation, EndLocation ) )
-			{
-			case 'N':
-				CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
-				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-				Queue.Enqueue( CurrentRoomLocation );
-			
-				break;
-			case 'E':
-				CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
-				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-				Queue.Enqueue( CurrentRoomLocation );
-			
-				break;
-			case 'S':
-				CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
-				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-				Queue.Enqueue( CurrentRoomLocation );
-			
-				break;
-			case 'W':
-				CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
-				GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-				Queue.Enqueue( CurrentRoomLocation );
-			
-				break;
-			
-			default:
-				UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
-				
-			}
-			
-		}
-		else if ( CriticalPathRandomnessRate > (RandomStream.RandRange(0, 100)) )
-		{
-			TArray PossibleRandomMoves{ 'N', 'E', 'S', 'W' };
-			char ChosenDirection{ PossibleRandomMoves[ RandomStream.RandRange(0, 3) ] };
-			
-			if ( CurrentRoomLocation.X < Width - 1 && CurrentRoomLocation.Y < Height - 1 )
-			{
-				switch ( ChosenDirection )
-				{
-				case 'N':
-					CurrentRoomLocation.Y = CurrentRoomLocation.Y + 1;
-					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-					Queue.Enqueue( CurrentRoomLocation );
-			
-					break;
-				case 'E':
-					CurrentRoomLocation.X = CurrentRoomLocation.X + 1;
-					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-					Queue.Enqueue( CurrentRoomLocation );
-			
-					break;
-				case 'S':
-					CurrentRoomLocation.Y = CurrentRoomLocation.Y - 1;
-					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-					Queue.Enqueue( CurrentRoomLocation );
-			
-					break;
-				case 'W':
-					CurrentRoomLocation.X = CurrentRoomLocation.X - 1;
-					GetCell( CurrentRoomLocation.X, CurrentRoomLocation.Y ).bIsRoom = true;
-					Queue.Enqueue( CurrentRoomLocation );
-			
-					break;
-			
-				default:
-					UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
-			
-				}
-				
-			}
-			
+			Direction = FigureOutRoomGenerationDirection( CurrentRoomLocation, EndLocation );
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT( "Generating Critical Path Failed" ));
+			TArray PossibleRandomMoves{ 'N', 'E', 'S', 'W' };
+			Direction = PossibleRandomMoves[ RandomStream.RandRange(0, 3) ];
 		}
+		
+		switch ( Direction )
+		{
+			case 'N':
+				Destination.Y = CurrentRoomLocation.Y + 1;
+				Destination.X = CurrentRoomLocation.X;
+				break;
+			
+			case 'E':
+				Destination.X = CurrentRoomLocation.X + 1;
+				Destination.Y = CurrentRoomLocation.Y;
+				break;
+			
+			case 'S':
+				Destination.Y = CurrentRoomLocation.Y - 1;
+				Destination.X = CurrentRoomLocation.X;
+				break;
+			
+			case 'W':
+				Destination.X = CurrentRoomLocation.X - 1;
+				Destination.Y = CurrentRoomLocation.Y;
+				break;
+			
+			default:
+				UE_LOG( LogTemp, Warning, TEXT("Generating Critical Path Failed") );
+				continue;
+		}
+
+		if ( IsInsideGrid( Destination.X, Destination.Y ) == false )
+		{
+			continue;
+		}
+		
+		if ( IsDestinationARoom(Destination) == true && GetCell(Destination.X, Destination.Y).bIsEnd == false )
+		{
+			continue;
+		}
+
+		GetCell( Destination.X, Destination.Y ).bIsRoom = true;
+		Queue.Enqueue( Destination );
+		CurrentRoomLocation = Destination;
 		
 	}
 	
@@ -195,6 +165,18 @@ char AADungeonGenerator::FigureOutRoomGenerationDirection( FIntPoint CurrentCell
 	char ChosenMove{ PossibleMoves[ RandomStream.RandRange(0, MaxSize - 1) ] };
 	
 	return ChosenMove;
+}
+
+
+// Checks if the target room is an existing room
+bool AADungeonGenerator::IsDestinationARoom( FIntPoint DestinationRoom )
+{
+	if ( GetCell( DestinationRoom.X, DestinationRoom.Y ).bIsRoom == true )
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

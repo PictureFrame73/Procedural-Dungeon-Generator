@@ -58,6 +58,9 @@ protected:
 	FIntPoint EndPoint;
 	UPROPERTY( BlueprintReadOnly )
 	FIntPoint CurrentRoomLocation;
+	UPROPERTY( BlueprintReadOnly )
+	FIntPoint Destination;
+	
 	FRandomStream RandomStream;
 
 	UFUNCTION( BlueprintCallable )
@@ -71,6 +74,7 @@ private:
 	void GenerateCriticalPath();
 	void GenerateStartEndPoints();
 	char FigureOutRoomGenerationDirection( FIntPoint CurrentCell, FIntPoint EndLocation );
+	bool IsDestinationARoom( FIntPoint DestinationRoom );
 	void GeneratePathBranches();
 	FIntPoint GetRandomPoint();
 	void PrintGrid() const;
